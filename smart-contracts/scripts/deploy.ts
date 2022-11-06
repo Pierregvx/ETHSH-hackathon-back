@@ -4,14 +4,14 @@ async function main() {
 
   const Lock = await ethers.getContractFactory("frontProposal");
   //"0x2Ff10419Fd92498b1143a96Aa0374E9d247B7CBA" mumbai
-  const lock = await Lock.attach("0x2Ff10419Fd92498b1143a96Aa0374E9d247B7CBA");
+  const lock = await Lock.deploy();
   const accounts = await ethers.getSigners()
   await lock.deployed();
   console.log(lock.address)
-  await lock.whitelist("0x9aD0C255e34795e778Bc0a9B48edC2a5fa20Fd4f")
+  await lock.whitelist(accounts[1])
   // await lock.whitelist(accounts[3].address)
   // await lock.connect(accounts[3]).proposeFirstFront("https://djkscdfhjeks4r6H8j98g345.ipns.dweb.link/")  
-  // await lock.connect(accounts[5]).proposeFirstFront("https://k51qzi5uqu5dgc7jdelv14mcma76yen9kaupekf5yhdncsrjuyn7hvxom4ig0u.ipns.dweb.link/")
+  await lock.connect(accounts[1]).proposeFirstFront("https://k51qzi5uqu5dgc7jdelv14mcma76yen9kaupekf5yhdncsrjuyn7hvxom4ig0u.ipns.dweb.link/")
 }
 
 // We recommend this pattern to be able to use async/await everywhere
