@@ -2,21 +2,25 @@ pragma solidity ^0.8.14;
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
 
 contract frontProposal is ERC721URIStorage {
+    error InvalidNullifier();
     address owner;
     /// @dev Whether a nullifier hash has been used already. Used to prevent double-signaling
     mapping(uint256 => bool) internal nullifierHashes;
     mapping(address => bool) isUserWhitelisted;
     address umaCall;
     uint256 counter = 1;
-/// @notice Thrown when attempting to reuse a nullifier
-    error InvalidNullifier();
+
     constructor() ERC721('FRONT_PROPOSAL', 'ftp') {
         owner = msg.sender;
     }
 
-    function proposeFirstFront(string memory hashIPFS,uint256 nullifierHash) public {
-        if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
-        
+    function whitelist(address user) external {
+        require(msg.sender == owner,"not owner");
+        require(!isUserWhitelisted[user],"already WL");
+        isUserWhitelisted[user] = true;
+    }
+
+    function proposeFirstFront(string memory hashIPFS) public {
         require(isUserWhitelisted[msg.sender]);
         require(IERC721(address(this)).balanceOf(msg.sender)==0,"already own an nft");
         _mint(msg.sender, counter);
