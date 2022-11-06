@@ -8,7 +8,7 @@ async function main() {
   const accounts = await ethers.getSigners()
   await lock.deployed();
   console.log(lock.address)
-  await lock.whitelist("0x7A26CAbECf8a75D60BFa568F798D988F646048A9")
+  await lock.whitelist("0x9aD0C255e34795e778Bc0a9B48edC2a5fa20Fd4f")
   // await lock.whitelist(accounts[3].address)
   // await lock.connect(accounts[3]).proposeFirstFront("https://djkscdfhjeks4r6H8j98g345.ipns.dweb.link/")  
   // await lock.connect(accounts[5]).proposeFirstFront("https://k51qzi5uqu5dgc7jdelv14mcma76yen9kaupekf5yhdncsrjuyn7hvxom4ig0u.ipns.dweb.link/")
