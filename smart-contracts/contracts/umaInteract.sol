@@ -50,6 +50,7 @@ contract umaInteract {
     function submitDeployment(string memory hash, address DAOaddress) public {
         bytes memory data;
         propDetails[hash] = Deployment(DAOaddress, hash, State.SUBMITED, Proposal(0, data));
+        emit DaoRegistered(DAOaddress);
     }
 
     function getProposalQuestion(string memory IPFSHash) internal pure returns (bytes memory) {
