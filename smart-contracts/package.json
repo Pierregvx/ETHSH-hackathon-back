@@ -45,6 +45,8 @@
     "dependencies": {
         "@babel/runtime": "^7.4.4",
         "@ensdomains/address-encoder": "^0.1.7",
+        "@nomicfoundation/hardhat-chai-matchers": "^1.0.4",
+        "@nomicfoundation/hardhat-toolbox": "^2.0.0",
         "@openzeppelin/contracts": "^4.5.0",
         "@openzeppelin/contracts-upgradeable": "^4.5.2",
         "@openzeppelin/hardhat-defender": "^1.6.0",
@@ -52,6 +54,7 @@
         "@uniswap/sdk": "^3.0.3",
         "@uniswap/v2-core": "^1.0.1",
         "@uniswap/v2-periphery": "^1.1.0-beta.0",
+        "all": "^0.0.0",
         "chai-as-promised": "^7.1.1",
         "cross-fetch": "^3.1.5",
         "envfile": "^6.17.0",
