@@ -1,0 +1,162 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "DAOAddress",
+        "type": "address"
+      }
+    ],
+    "name": "DaoRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "DAOaddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "IPFSHash",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum umaInteract.State",
+        "name": "State",
+        "type": "uint8"
+      }
+    ],
+    "name": "ProposalUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "IPFSHash",
+        "type": "string"
+      }
+    ],
+    "name": "getSettledData",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "propDetails",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "DAOaddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "IPFShash",
+        "type": "string"
+      },
+      {
+        "internalType": "enum umaInteract.State",
+        "name": "state",
+        "type": "uint8"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct umaInteract.Proposal",
+        "name": "lastProposal",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "IPFSHash",
+        "type": "string"
+      }
+    ],
+    "name": "requestData",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "IPFSHash",
+        "type": "string"
+      }
+    ],
+    "name": "settleRequest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "hash",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "DAOaddress",
+        "type": "address"
+      }
+    ],
+    "name": "submitDeployment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "IPFSHash",
+        "type": "string"
+      }
+    ],
+    "name": "updatePropState",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
