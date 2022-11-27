@@ -6,9 +6,9 @@ dataSources:
     name: DAOCensus
     network: goerli
     source:
-      address: "0x3fAF1c112CBeA33D82666E58b7a97D0190242394"
+      address: "0x45D76b355049a1dD4F66CBDb5aC36dae28B3b7a1"
       abi: DAOCensus
-      startBlock: 7977212
+      startBlock: 7977974
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -16,12 +16,15 @@ dataSources:
       entities:
         - ProposalUpdated
         - DaoRegistered
+        - DeploymentSubmitted
       abis:
         - name: DAOCensus
           file: DAOCensus/abis/DAOCensus.json
       eventHandlers:
-        - event: ProposalUpdated(address,string,uint8)
+        - event: ProposalUpdated(address,string,uint8,bytes)
           handler: handleProposalUpdated
-        - event: DaoRegistered(address)
+        - event: DaoRegistered(address,uint16,uint256)
           handler: handleDaoRegistered
+        - event: DeploymentSubmitted(address,string)
+          handler: handleDeploymentSubmitted
       file: DAOCensus/DAOCensus.wasm

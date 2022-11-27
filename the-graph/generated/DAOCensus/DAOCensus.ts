@@ -26,6 +26,36 @@ export class DaoRegistered__Params {
   get DAOAddress(): Address {
     return this._event.parameters[0].value.toAddress();
   }
+
+  get limDeployments(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get defaultReward(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class DeploymentSubmitted extends ethereum.Event {
+  get params(): DeploymentSubmitted__Params {
+    return new DeploymentSubmitted__Params(this);
+  }
+}
+
+export class DeploymentSubmitted__Params {
+  _event: DeploymentSubmitted;
+
+  constructor(event: DeploymentSubmitted) {
+    this._event = event;
+  }
+
+  get DAOAddress(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get IPSFHash(): string {
+    return this._event.parameters[1].value.toString();
+  }
 }
 
 export class ProposalUpdated extends ethereum.Event {
@@ -52,15 +82,69 @@ export class ProposalUpdated__Params {
   get State(): i32 {
     return this._event.parameters[2].value.toI32();
   }
-}
-
-export class DAOCensus__propDetailsResultLastProposalStruct extends ethereum.Tuple {
-  get time(): BigInt {
-    return this[0].toBigInt();
-  }
 
   get data(): Bytes {
-    return this[1].toBytes();
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
+export class DAOCensus__dashboardsResult {
+  value0: boolean;
+  value1: i32;
+  value2: BigInt;
+
+  constructor(value0: boolean, value1: i32, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromBoolean(this.value0));
+    map.set(
+      "value1",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+    );
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
+  }
+
+  getIsValidated(): boolean {
+    return this.value0;
+  }
+
+  getLimDeployments(): i32 {
+    return this.value1;
+  }
+
+  getDefaultReward(): BigInt {
+    return this.value2;
+  }
+}
+
+export class DAOCensus__lastDeploymentProposalResult {
+  value0: BigInt;
+  value1: Bytes;
+
+  constructor(value0: BigInt, value1: Bytes) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromBytes(this.value1));
+    return map;
+  }
+
+  getTime(): BigInt {
+    return this.value0;
+  }
+
+  getData(): Bytes {
+    return this.value1;
   }
 }
 
@@ -68,18 +152,11 @@ export class DAOCensus__propDetailsResult {
   value0: Address;
   value1: string;
   value2: i32;
-  value3: DAOCensus__propDetailsResultLastProposalStruct;
 
-  constructor(
-    value0: Address,
-    value1: string,
-    value2: i32,
-    value3: DAOCensus__propDetailsResultLastProposalStruct
-  ) {
+  constructor(value0: Address, value1: string, value2: i32) {
     this.value0 = value0;
     this.value1 = value1;
     this.value2 = value2;
-    this.value3 = value3;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -90,7 +167,6 @@ export class DAOCensus__propDetailsResult {
       "value2",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value2))
     );
-    map.set("value3", ethereum.Value.fromTuple(this.value3));
     return map;
   }
 
@@ -105,15 +181,46 @@ export class DAOCensus__propDetailsResult {
   getState(): i32 {
     return this.value2;
   }
-
-  getLastProposal(): DAOCensus__propDetailsResultLastProposalStruct {
-    return this.value3;
-  }
 }
 
 export class DAOCensus extends ethereum.SmartContract {
   static bind(address: Address): DAOCensus {
     return new DAOCensus("DAOCensus", address);
+  }
+
+  dashboards(param0: Address): DAOCensus__dashboardsResult {
+    let result = super.call(
+      "dashboards",
+      "dashboards(address):(bool,uint16,uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return new DAOCensus__dashboardsResult(
+      result[0].toBoolean(),
+      result[1].toI32(),
+      result[2].toBigInt()
+    );
+  }
+
+  try_dashboards(
+    param0: Address
+  ): ethereum.CallResult<DAOCensus__dashboardsResult> {
+    let result = super.tryCall(
+      "dashboards",
+      "dashboards(address):(bool,uint16,uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new DAOCensus__dashboardsResult(
+        value[0].toBoolean(),
+        value[1].toI32(),
+        value[2].toBigInt()
+      )
+    );
   }
 
   getSettledData(IPFSHash: string): BigInt {
@@ -139,20 +246,52 @@ export class DAOCensus extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  lastDeploymentProposal(
+    param0: string
+  ): DAOCensus__lastDeploymentProposalResult {
+    let result = super.call(
+      "lastDeploymentProposal",
+      "lastDeploymentProposal(string):(uint256,bytes)",
+      [ethereum.Value.fromString(param0)]
+    );
+
+    return new DAOCensus__lastDeploymentProposalResult(
+      result[0].toBigInt(),
+      result[1].toBytes()
+    );
+  }
+
+  try_lastDeploymentProposal(
+    param0: string
+  ): ethereum.CallResult<DAOCensus__lastDeploymentProposalResult> {
+    let result = super.tryCall(
+      "lastDeploymentProposal",
+      "lastDeploymentProposal(string):(uint256,bytes)",
+      [ethereum.Value.fromString(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new DAOCensus__lastDeploymentProposalResult(
+        value[0].toBigInt(),
+        value[1].toBytes()
+      )
+    );
+  }
+
   propDetails(param0: string): DAOCensus__propDetailsResult {
     let result = super.call(
       "propDetails",
-      "propDetails(string):(address,string,uint8,(uint256,bytes))",
+      "propDetails(string):(address,string,uint8)",
       [ethereum.Value.fromString(param0)]
     );
 
     return new DAOCensus__propDetailsResult(
       result[0].toAddress(),
       result[1].toString(),
-      result[2].toI32(),
-      changetype<DAOCensus__propDetailsResultLastProposalStruct>(
-        result[3].toTuple()
-      )
+      result[2].toI32()
     );
   }
 
@@ -161,7 +300,7 @@ export class DAOCensus extends ethereum.SmartContract {
   ): ethereum.CallResult<DAOCensus__propDetailsResult> {
     let result = super.tryCall(
       "propDetails",
-      "propDetails(string):(address,string,uint8,(uint256,bytes))",
+      "propDetails(string):(address,string,uint8)",
       [ethereum.Value.fromString(param0)]
     );
     if (result.reverted) {
@@ -172,12 +311,47 @@ export class DAOCensus extends ethereum.SmartContract {
       new DAOCensus__propDetailsResult(
         value[0].toAddress(),
         value[1].toString(),
-        value[2].toI32(),
-        changetype<DAOCensus__propDetailsResultLastProposalStruct>(
-          value[3].toTuple()
-        )
+        value[2].toI32()
       )
     );
+  }
+}
+
+export class RegisterDAOCall extends ethereum.Call {
+  get inputs(): RegisterDAOCall__Inputs {
+    return new RegisterDAOCall__Inputs(this);
+  }
+
+  get outputs(): RegisterDAOCall__Outputs {
+    return new RegisterDAOCall__Outputs(this);
+  }
+}
+
+export class RegisterDAOCall__Inputs {
+  _call: RegisterDAOCall;
+
+  constructor(call: RegisterDAOCall) {
+    this._call = call;
+  }
+
+  get DAOaddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get limit(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+
+  get payment(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+}
+
+export class RegisterDAOCall__Outputs {
+  _call: RegisterDAOCall;
+
+  constructor(call: RegisterDAOCall) {
+    this._call = call;
   }
 }
 

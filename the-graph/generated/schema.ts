@@ -186,6 +186,15 @@ export class Dao extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get isValidated(): boolean {
+    let value = this.get("isValidated");
+    return value!.toBoolean();
+  }
+
+  set isValidated(value: boolean) {
+    this.set("isValidated", Value.fromBoolean(value));
+  }
+
   get fronts(): Array<string> | null {
     let value = this.get("fronts");
     if (!value || value.kind == ValueKind.NULL) {

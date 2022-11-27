@@ -21,6 +21,7 @@ type Deployment @entity {
 }
 type Dao @entity {
   id: ID!
+  isValidated: Boolean!
   fronts:[Deployment!]@derivedFrom(field: "dao")
 
 }

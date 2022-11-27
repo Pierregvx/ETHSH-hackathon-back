@@ -4,18 +4,38 @@ import styles from '../styles/Home.module.css';
 import { gql } from '@apollo/client';
 import client from '../apollo-client';
 import { ethers } from 'ethers';
-
+import { abi } from '../smart-contracts/artifacts/contracts/umaInteract.sol/umaInteract.json';
+import {abi as abiuma } from "../smart-contracts/artifacts/protocol/packages/core/contracts/oracle/interfaces/OptimisticOracleV2Interface.sol/OptimisticOracleV2Interface.json"
 async function signIn() {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
 
   await provider.send('eth_requestAccounts', []);
 }
-const daoAddress = "0x7fc5f4f5be07b698365da975218909195404ef89"
+
+async function submitHash() {
+  const ipfsHash = document.getElementById("inputHash").value;
+  const DAOaddress = "0x7fc5f4f5be07b698365da975218909195404ef89"
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner()
+  const contract = new ethers.Contract('0x45D76b355049a1dD4F66CBDb5aC36dae28B3b7a1', abi, provider);
+  await contract.connect(signer).submitDeployment(ipfsHash, DAOaddress);
+}
+async function submitVoteDeployment(){
+  const ipfsHash = document.getElementById("id").innerHTML;
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const contract = new ethers.Contract('0x45D76b355049a1dD4F66CBDb5aC36dae28B3b7a1', abi, provider);
+  const signer = provider.getSigner()
+  await contract.connect(signer).requestData(ipfsHash)
+  console.log(ipfsHash)
+
+}
+const daoAddress = '0x7fc5f4f5be07b698365da975218909195404ef89';
 export async function getStaticProps() {
   const { data } = await client.query({
     query: gql`
       query Countries {
         dao(id: "0x7fc5f4f5be07b698365da975218909195404ef89") {
+          id
           fronts {
             id
             dao {
@@ -23,9 +43,10 @@ export async function getStaticProps() {
             }
             state
             timeCreated
-            proposals {
+            proposals(orderBy: time, orderDirection: desc) {
               time
               id
+              data
             }
           }
         }
@@ -39,7 +60,7 @@ export async function getStaticProps() {
   };
 }
 
-export default function Home({ countries }) {
+export default function Home({ dao }) {
   return (
     <div className={styles.container}>
       <Head>
@@ -50,41 +71,43 @@ export default function Home({ countries }) {
 
       <main className={styles.main}>
         <button onClick={signIn}>Sign in</button>
-        <h1 className={styles.title}>dao</h1>
+        <h1 className={styles.title}>DAOcensus</h1>
         <div className={styles.grid}>
-        <a href={`https://arbiscan.io/address/${dao.id}`}>
-                  DAO : {dao.id} <br></br>
-                </a>
-          {countries.map((dao) => (
+          {console.log(dao)}
+          <a href={`https://arbiscan.io/address/${dao.id}`}>
+            DAO : {dao.id} <br></br>
+          </a>
+          <form>
+            <input type="text" id='inputHash'></input>
+            <input type ="button" onClick={submitHash}></input>
+          </form>
+          {dao.fronts.map((front) => (
             <div key={dao.id} className={styles.card}>
               <h3>
-                <a href="#country-name" aria-hidden="true" class="aal_anchor" id="country-name">
+                <div aria-hidden="true" class="aal_anchor" id="country-name">
                   <svg aria-hidden="true" class="aal_svg" height="16" version="1.1" viewBox="0 0 16 16" width="16">
                     <path
                       fill-rule="evenodd"
                       d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"
                     ></path>
                   </svg>
-                </a>
+                  <h5 > Deployment <span id="id">{front.id}</span></h5>
+                  <h5> time {front.timeCreated}</h5>
+                  <h5> state {front.state}</h5>
+                  {front.state === 'SUBMITED'&&(
+                    <button type="button" onClick={submitVoteDeployment}> submit vote </button>
+                  )}
 
-                
-
-                <div>
-                  {dao.fronts.map((xj) => (
-                    <div key={xj.id}>
-                      <h5> Deployment {xj.id}</h5>
-                      <h5> state {xj.state}</h5>
-                      <h5> time {xj.timeCreated}</h5>
-                    </div>
-                  ))}
+                  {front.state === 'VOTE_ONGOING' && (
+                    <a
+                      href={`https://testnet.oracle.umaproject.org/request?transactionHash=${front.proposals[0].id}&chainId=5&oracleType=OptimisticV2&eventIndex=0`}
+                    >
+                      {' '}
+                      vote : {front.proposals[0].id}
+                    </a>
+                  )}
                 </div>
               </h3>
-              {/* <p>Xp :{dao.xp}</p> */}
-              {/* <p>Volume exchanged in the platform: {dao.volume}</p>
-              <p>Deposit volume:{dao.deposit}</p>
-              <p>Swap volume :{dao.swap}</p>
-              <p>Redeem volume :{dao.redeem}</p> */}
-              {/* <p>Chains called from Arbitrum: {dao.chains.join(' - ')}</p> */}
             </div>
           ))}
         </div>
